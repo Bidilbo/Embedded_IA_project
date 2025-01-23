@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "utils.h"
+#include "mlp.h"
 
 // Premier main.c sur un MLP avec une seule couche cachée
 
@@ -13,11 +15,12 @@ int main()
 {
     double w1[INPUT_SIZE * HIDDEN_SIZE], b1[HIDDEN_SIZE];
     double w2[HIDDEN_SIZE * HIDDEN_SIZE], b2[HIDDEN_SIZE];
+    double image[INPUT_SIZE];
 
-    load_weights("modele/fc1_weight.txt", w1, HIDDEN_SIZE, INPUT_SIZE);
-    load_biases("modele/fc1_bias.txt", b1, HIDDEN_SIZE);
-    load_weights("modele/fc2_weight.txt", w2, HIDDEN_SIZE, HIDDEN_SIZE);
-    load_biases("modele/fc2_bias.txt", b2, HIDDEN_SIZE);
+    load_weights("../modele/fc1_weight.txt", w1, HIDDEN_SIZE, INPUT_SIZE);
+    load_biases("../modele/fc1_bias.txt", b1, HIDDEN_SIZE);
+    load_weights("../modele/fc2_weight.txt", w2, HIDDEN_SIZE, HIDDEN_SIZE);
+    load_biases("../modele/fc2_bias.txt", b2, HIDDEN_SIZE);
 
     printf("Weights and bias loaded \n");
     printf("value of first weight : %lf \n", w1[0]);
