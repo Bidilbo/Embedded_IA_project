@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "utils.h"
 
-void load_weights(const char *filename, double *weights, int size)
+void load_weights(const char *filename, double **weights, int rows, int cols)
 {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -10,10 +10,15 @@ void load_weights(const char *filename, double *weights, int size)
         exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < size; i++) {
-        if (fscanf(file, "%lf", &weights[i]) != 1) {
-            fprintf(stderr, "Erreur de lecture des biais\n");
-            exit(EXIT_FAILURE);
+    for (int i = 0; i < rows; i++)
+    {
+        for(int j = 0; j < cols; j++)
+        {
+            if (fscanf(file, "%lf", &weights[i][j]) != 1) 
+            {
+                fprintf(stderr, "Erreur de lecture des biais\n");
+                exit(EXIT_FAILURE);
+            }
         }
     }
     fclose(file);

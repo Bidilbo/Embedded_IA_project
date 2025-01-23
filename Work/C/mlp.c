@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include "mlp.h"
 
@@ -6,39 +8,50 @@ double relu(double x)
     return x > 0 ? x : 0;
 }
 
-void multiply_matrices(int rowsA, int colsA, int colsB, double A[rowsA][colsA], double B[colsA][colsB], double C[rowsA][colsB]) 
+void multiply_matrices(int rowsA, int colsA, double **A, double *B, double * C) 
 {
-    for (int i = 0; i < rowsA; i++) {
-        for (int j = 0; j < colsB; j++) {
-            C[i][j] = 0.0;
-        }
+    for (int i = 0; i < colsA; i++) 
+    {
+        C[i] = 0;
     }
-    for (int i = 0; i < rowsA; i++) {
-        for (int j = 0; j < colsB; j++) {
-            for (int k = 0; k < colsA; k++) {
-                C[i][j] += A[i][k] * B[k][j];
-            }
+
+    for (int i = 0; i < rowsA; i++) 
+    {
+        for (int k = 0; k < colsA; k++) 
+        {
+            C[i] += A[i][k] * B[k];
         }
+
     }
 }
 
-def transpose(int row, int col, double matrix[row][col], double result[row][col])
+/*void transpose(int row, int col, double matrix[row][col], double result[row][col])
 {
-    
-}
+    return 0;
+}*/
 
-void forward_pass(double *input, double *w1, double *b1, double *w2, double *b2, double *output)
+void forward_pass(double *input, double **w1, double *b1, double **w2, double *b2, double *output, int input_size, int hidden_size, int output_size)
 {
 
-    double hidden1[HIDDEN_SIZE] = {0};
+    double *hidden1 = (double*)malloc(hidden_size * sizeof(double));
 
     // Couche 1
-    for (int i = 0; i < HIDDEN_SIZE; i++) {
-        for (int j = 0; j < INPUT_SIZE; j++) {
-            hidden1[i] += input[j] * w1[i * INPUT_SIZE + j];
-        }
-        hidden1[i] += b1[i];
-        hidden1[i] = relu(hidden1[i]);
+
+    multiply_matrices(hidden_size, input_size, w1, input, hidden1);
+    for(int h = 0; h < hidden_size; h++)
+    {
+        hidden1[h] += b1[h];
+        hidden1[h] = relu(hidden1[h]);
+    }
+
+    // Couche 2
+
+    multiply_matrices(output_size, hidden_size, w2, hidden1, output);
+    for(int h = 0; h < output_size; h++)
+    {
+        output[h] += b2[h];
+        output[h] = relu(output[h]);
+        printf("%lf \n", output[h]);
     }
 
 }

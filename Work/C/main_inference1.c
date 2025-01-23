@@ -15,23 +15,34 @@
 
 int main() 
 {
-    int nb_w1 = INPUT_SIZE * HIDDEN_SIZE, nb_w2 = HIDDEN_SIZE * OUTPUT_SIZE; 
-    double w1[nb_w1], b1[HIDDEN_SIZE];
-    double w2[nb_w2], b2[OUTPUT_SIZE];
-    int image[INPUT_SIZE];
+    double image[INPUT_SIZE];
+    double *output = (double*)malloc(OUTPUT_SIZE * sizeof(double));
 
-    // Pour la suite ce que je te donne en entrée gros chien (prends pas en compte avant)
-    //double w1[HIDDEN_SIZE][INPUT_SIZE], b1[HIDDEN_SIZE];
-    //double w2[OUTPUT_SIZE][HIDDEN_SIZE], b2[OUTPUT_SIZE];
+    double *b1 = (double*)malloc(HIDDEN_SIZE * sizeof(double));
+    double *b2 = (double*)malloc(OUTPUT_SIZE * sizeof(double));
+
+    double **w1 = (double**)malloc(HIDDEN_SIZE*sizeof(double*));
+    for(int i=0; i < INPUT_SIZE; i++)
+    {
+        w1[i] = (double*)malloc(INPUT_SIZE * sizeof(double));
+    }
+    double **w2 = (double**)malloc(OUTPUT_SIZE*sizeof(double*));
+    for(int i=0; i < HIDDEN_SIZE; i++)
+    {
+        w2[i] = (double*)malloc(HIDDEN_SIZE * sizeof(double));
+    }
+    // w1 : double w1[HIDDEN_SIZE][INPUT_SIZE]
+    // w2 : double w2[OUTPUT_SIZE][HIDDEN_SIZE]
 
     //////////////////* Chargement poids et biais *//////////////////////
 
-    load_weights("../modele/fc1_weight.txt", w1, nb_w1);
+    load_weights("../modele/fc1_weight.txt", w1, HIDDEN_SIZE, INPUT_SIZE);
     load_biases("../modele/fc1_bias.txt", b1, HIDDEN_SIZE);
-    load_weights("../modele/fc2_weight.txt", w2, nb_w2);
+    load_weights("../modele/fc2_weight.txt", w2, OUTPUT_SIZE, HIDDEN_SIZE);
     load_biases("../modele/fc2_bias.txt", b2, OUTPUT_SIZE);
 
     printf("Weights and bias loaded \n");
+    printf("%lf\n", w1[0][1]);
 
     //////////////////* Chargement de l'image *//////////////////////
     
@@ -54,12 +65,15 @@ int main()
         for(int i = 0; i < 28; i++)
         {
             //printf("%d \n", j*27 + i);
-            image[j*28 + i] = bitmap.mPixelsGray[j][i];
+            image[j*28 + i] = (double)bitmap.mPixelsGray[j][i];
         }
     }
-    printf("%d\n", image[9*28+7]);
+    printf("%lf\n", image[9*28+7]);
 
     DesallouerBMP(&bitmap);
-    return 0;
+
+    //////////////////////* Phase d'inférence *//////////////////////
+    printf("test\n");
+    forward_pass(image, w1, b1, w2, b2, output, INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE);
 
 }
