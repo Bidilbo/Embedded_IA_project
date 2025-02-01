@@ -26,7 +26,8 @@ transform = transforms.Compose([
 
 ###### CHARGEMENT DU DATASET ######
 
-dataset_path = "data/dataset_preprocessed"  # Chemin vers le dossier contenant les images pré-traitées
+# Chemin vers le dossier contenant les images pré-traitées  
+dataset_path = "/home/docker/Work/data/dataset_preprocessed"
 dataset = datasets.ImageFolder(root=dataset_path, transform=transform)
 #print(f"Classes: {dataset.classes}")
 
@@ -57,7 +58,8 @@ test_dataset = Subset(dataset, test_indices)
 # Obtenir les chemins des images pour le test
 test_images = [dataset.samples[idx][0] for idx in test_indices]
 
-output_dir = "images_inference"
+#output_dir = "images_inference"
+output_dir = "/home/docker/Work/images_inference"
 
 # Supprimer le dossier s'il existe et tout son contenu
 if os.path.exists(output_dir):
@@ -74,16 +76,16 @@ for idx in test_indices:
     shutil.copy(img_path, dest_path)
 
 print("Nombre d'images de test :", len(test_indices))
-print("\nImages utilisées pour le test sauvegardées le dossier", output_dir)
+print("\nImages utilisées pour le test sauvegardées dans le dossier", output_dir)
 
 batch_size = 2
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-for X, y in test_dataloader:
+"""for X, y in test_dataloader:
     print(f"Forme de X [N, C, H, W]: {X.shape}")
     print(f"Forme de y: {y.shape} {y.dtype}")
-    break
+    break"""
 
 
 ######## Entrainement ########
@@ -97,7 +99,6 @@ hidden_size2 = 128
 output_size = 10
 #model = ML_Perceptron(input_size, hidden_size, output_size).to(device)
 model = ML_Perceptron2(input_size, hidden_size1, hidden_size2, output_size).to(device)
-#print(model)
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -140,11 +141,18 @@ for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
     train(train_dataloader, model, loss_fn, optimizer)
     test(test_dataloader, model, loss_fn)
-print("Done!")
+print("Entrainement terminé.")
 
-model_save_dir = "./modele/model.pth"
-torch.save(model.state_dict(), model_save_dir)
-print("Saved PyTorch Model State to ", model_save_dir)
+model_save_dir = "/home/docker/Work/modele"
+
+if os.path.exists(model_save_dir):
+    shutil.rmtree(model_save_dir)
+
+os.makedirs(model_save_dir, exist_ok=True)
+
+model_name = model_save_dir + "/model.pth"
+torch.save(model.state_dict(), model_name)
+print("Modèle sauvegardé au format .pth dans ",model_name)
 
 
 ######## Sauvegarde des paramètres ########
@@ -155,32 +163,37 @@ import numpy as np
 from ML_Perceptron import ML_Perceptron
 import json
 
-model.load_state_dict(torch.load(model_save_dir, weights_only=True))
+model.load_state_dict(torch.load(model_name, weights_only=True))
 model.eval()
 model_parameters = filter(lambda p: p.requires_grad, model.parameters())
-params = sum([np.prod(p.size()) for p in model_parameters])
-print("number of parameters : ", params)
 
 # Création du dictionnaire JSON
 model_data = {"architecture": [], "parameters": {}}
 
 # Récupérer la structure du réseau
 for name, module in model.named_children():
-    print(name, module)
     if isinstance(module, torch.nn.Linear):
         layer_info = {
             "type": "Linear",
             "in_features": module.in_features,
             "out_features": module.out_features,
-            #"activation": "ReLU" if "relu" in name.lower() else "None"
         }
         model_data["architecture"].append(layer_info)
 
 for name, param in model.named_parameters():
     model_data["parameters"][name] = param.detach().cpu().numpy().tolist()
 
-# Écriture dans un fichier JSON
-with open("modele/model_data.json", "w") as f:
+
+with open("/home/docker/Work/modele/model_data.json", "w") as f:
     json.dump(model_data, f, indent=4)
 
-print("Modèle sauvegardé sous forme de JSON : modele/model_data.json")
+print("Modèle sauvegardé sous forme de JSON :/home/docker/Work/modele/model_data.json")
+print("\nPour lancer l'inférence sur la Raspberry PI :")
+print("-------------------------------\n")
+print("1. Copier les dossiers 'modele', 'images_inference' et C'")
+print("2. Aller dans le dossier 'C'. Faire les commandes :")
+print("make veryclean")
+print("make")
+print("3. Choisir une image dans images_inference puis lancer l'inférence avec la commande :")
+print("./all ../images_inference/image.bmp")
+print("\n")

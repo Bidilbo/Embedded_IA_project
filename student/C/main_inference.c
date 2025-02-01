@@ -11,8 +11,8 @@
 
 typedef struct {
     char type[10];   // "Linear" pour un MLP
-    int in_features;  // Taille entrée (pour Linear uniquement)
-    int out_features; // Taille sortie (pour Linear uniquement)
+    int in_features;  // Taille entrée
+    int out_features; // Taille sortie
     double **weights; // Matrice de poids
     double *bias;     // Vecteur de biais
 } Layer;
@@ -142,7 +142,7 @@ void forward(NeuralNetwork *network, double *input, double *output) {
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
 
     //////////////////* Chargement de l'architecture et des paramètres *//////////////////////
     NeuralNetwork network;
@@ -150,21 +150,24 @@ int main() {
 
     int input_size = network.layers[0].in_features;
     int output_size = network.layers[network.num_layers - 1].out_features;
-    printf("input_size : %d\n", input_size);
-    printf("output_size : %d\n", output_size);
 
     double *image = (double *)malloc(input_size * sizeof(double));
     double *output = (double *)malloc(output_size * sizeof(double));
 
     //////////////////* Chargement de l'image *//////////////////////
     
-    const char* image_path = "../images_inference/1_6.bmp";  // Chemin de l'image
+    if (argc < 2) {  // Vérifie si un argument est passé
+        printf("Usage: %s <image_path>\n", argv[0]);
+        return 1;
+    }
+
+    const char* image_path = argv[1];
 
     // Copie de la chaîne de caractères car dirname et basename modifient la chaîne
     char path_copy[256];
     snprintf(path_copy, sizeof(path_copy), "%s", image_path);
 
-    // Affiche l'image utilisée
+    // Affichage de l'image utilisée
     char* filename = basename(path_copy);
     printf("Image de test : %s\n", filename);
 
@@ -174,7 +177,7 @@ int main() {
     pFichier=fopen(image_path, "rb");     
     if (pFichier==NULL) {
         printf("%s\n", image_path);
-        printf("Erreur dans la lecture du fichier\n");
+        printf("Erreur dans la lecture du fichier %s\n", image_path);
     }
     LireBitmap(pFichier, &bitmap);
     fclose(pFichier);               
