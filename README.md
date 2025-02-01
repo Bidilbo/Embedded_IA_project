@@ -9,12 +9,15 @@ Pour lancer le projet, créer l'image Docker "student" à partir du Dockerfile s
 ## Lancer l'entrainement
 
 Executer la commande : 
-**./deploy.sh**
-
+```bash
+./deploy.sh
+```
 ## Lancer l'inférence
 
 Se placer dans le dossier C. Executer les commandes :
-**make veryclean**
-**make**
-**./all ../images_inference/image.bmp**
+```bash
+make veryclean
+make
+./all ../images_inference/image.bmp
+```
 
