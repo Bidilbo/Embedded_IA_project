@@ -93,12 +93,13 @@ test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 from ML_Perceptron import ML_Perceptron, ML_Perceptron2
 
 input_size = 28*28
-#hidden_size = 128
+hidden_size = 128
 hidden_size1 = 256
 hidden_size2 = 128
 output_size = 10
-#model = ML_Perceptron(input_size, hidden_size, output_size).to(device)
-model = ML_Perceptron2(input_size, hidden_size1, hidden_size2, output_size).to(device)
+model = ML_Perceptron(input_size, hidden_size, output_size).to(device)
+#model = ML_Perceptron2(input_size, hidden_size1, hidden_size2, output_size).to(device)
+print("Modèle utilisé : ", model)
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -157,10 +158,6 @@ print("Modèle sauvegardé au format .pth dans ",model_name)
 
 ######## Sauvegarde des paramètres ########
 
-
-import torch
-import numpy as np
-from ML_Perceptron import ML_Perceptron
 import json
 
 model.load_state_dict(torch.load(model_name, weights_only=True))
